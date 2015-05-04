@@ -1,8 +1,15 @@
+#!/usr/bin/env node
+
+var app = require('./setup.js')({});
+
 /****  setup  ****/
+require('./git.js')(app); // setup git
+
 // find dotfiles
   // check for ~/.dotfiles
     // confirm using them
     // prompt user for location?
+    // get from github
 
 // prompt user for os and env
 

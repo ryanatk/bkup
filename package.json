@@ -15,5 +15,17 @@
   "bugs": {
     "url": "https://github.com/ryanatk/osreboot/issues"
   },
-  "homepage": "https://github.com/ryanatk/osreboot"
+  "homepage": "https://github.com/ryanatk/osreboot",
+  "dependencies": {
+    "chalk": "^1.0.0"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "os",
+    "reboot",
+    "fresh",
+    "install",
+    "software",
+    "settings"
+  ]
 }
