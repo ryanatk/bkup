@@ -3,11 +3,15 @@
 var app = require('./setup.js')({});
 
 /****  setup  ****/
-app.title('GIT');
-require('./git.js')(app); // setup git
 
-app.title ('DOTFILES');
-require('./dotfiles.js')(app); // setup dotfiles
+app.title('GIT'); // setup git
+require('./git.js')(app);
+
+app.title ('DOTFILES'); // setup dotfiles
+require('./dotfiles.js')(app);
+
+app.title ('DOWNLOADS'); // download software
+require('./downloads.js')(app);
 
 // prompt user for os and env
 

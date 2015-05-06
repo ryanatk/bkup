@@ -73,13 +73,12 @@ module.exports = function (app) {
   var targetDir = path.join(app.user, 'tmp');
   app.log('location:', srcDir).br();
 
-  // read all files in dotfiles directory
-  fs.readdirAsync(srcDir)
+  fs.readdirAsync(srcDir) // get a list of all files in dotfiles directory
     .map(function (name) {
       var loc = path.join(srcDir, name);
       var targetLoc = path.join(targetDir, '.' + name); // where we'll create/symlink the file
 
-      return fs.statAsync(loc).then(function (stat) {
+      return fs.statAsync(loc).then(function (stat) { // gather info on each file
         var source = {
           'isDirectory': stat.isDirectory(),
           'loc': loc,

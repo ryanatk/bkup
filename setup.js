@@ -17,6 +17,7 @@ module.exports = function (app) {
 
   // util functions
   app.spawn = require('./setup/spawn.js');
+  app.ignore = require('./setup/ignore.js');
 
   // config properties
   app.os = require('./setup/os.js')(app);
