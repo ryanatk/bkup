@@ -16,4 +16,4 @@ If not, get it <https://nodejs.org/download/>
 
 ### node module from npm
 
-	npm install -g bkup
+	npm install bkup
