@@ -1,7 +1,7 @@
 # bkup
 
-Scripts to setup your fresh os install, from backup.
-Dotfiles and downloads stored in a separate directory/project (defaults to ~/.backup/)
+Command Line tool to setup your fresh os install, from backup.
+Dotfiles & downloads stored in a separate directory/project (defaults to ~/.backup/)
 
 ## install
 

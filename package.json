@@ -1,21 +1,21 @@
 {
   "name": "bkup",
-  "version": "0.0.1",
-  "description": "easy setup for a fresh install of your os, from backup",
+  "version": "0.0.3",
+  "description": "easy setup of a fresh os install, from backup",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ryanatk/osreboot.git"
+    "url": "https://github.com/ryanatk/bkup.git"
   },
   "author": "ryanatk",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ryanatk/osreboot/issues"
+    "url": "https://github.com/ryanatk/bkup/issues"
   },
-  "homepage": "https://github.com/ryanatk/osreboot",
+  "homepage": "https://github.com/ryanatk/bkup",
   "dependencies": {
     "bluebird": "^2.9.25",
     "chalk": "^1.0.0",

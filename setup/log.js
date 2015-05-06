@@ -68,6 +68,8 @@ module.exports = (function () {
 
     'title': function title(txt) {
       return Log().br().print(['---------  ', txt, '  ---------']).br();
+      // TODO: title function creates a new 'group', where Log can push to, so a group of logs can be printed together at once
+      // (not necessary if i can run each group synchronously, using prompts)
     }
   };
 })();

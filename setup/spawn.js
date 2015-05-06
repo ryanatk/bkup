@@ -20,7 +20,7 @@ module.exports = function (cmd, silent) {
     if (buf) {
       output = buf.toString('utf8'); // convert buffer to string and set to output
 
-      if (!silent)
+      if (!silent && output)
         app.output(output);
     }
   };

@@ -5,19 +5,15 @@ var path = require('path-extra');
 
 module.exports = function (app) {
   // log to console
-  app.title = require('./setup/log.js').title;
-  app.log = require('./setup/log.js').log;
-  app.msg = require('./setup/log.js').msg;
-  app.prop = require('./setup/log.js').prop;
-  app.warn = require('./setup/log.js').warn;
-  app.cmd = require('./setup/log.js').cmd;
-  app.output = require('./setup/log.js').output;
-  app.error = require('./setup/log.js').error;
-  app.br = require('./setup/log.js').br;
+  var logjs = require('./setup/log.js');
+  for (var key in logjs) {
+    app[key] = logjs[key];
+  }
 
   // util functions
   app.spawn = require('./setup/spawn.js');
   app.ignore = require('./setup/ignore.js');
+  app.file = require('./setup/file.js');
 
   // config properties
   app.os = require('./setup/os.js')(app);
