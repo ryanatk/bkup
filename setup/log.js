@@ -1,38 +1,73 @@
 // helper to standardize log appearance
 
-var prefix = ':';
+module.exports = (function () {
+  var prefix;
+  var Log = function log(prefix) {
+    if (!(this instanceof Log)) // saves us from needing to use the new keyword every time
+      return new Log(prefix);
 
-module.exports = {
-  'msg': function msg() {
-    prefix = '"';
-    log.apply(this, arguments);
-  },
+    this.prefix = prefix || '';
+  };
 
-  'prop': function prop() {
-    prefix = '@';
-    log.apply(this, arguments);
-  },
+  Log.prototype = {
+    'print': function () {
+      var logs = [this.prefix];
+      var args = arguments[0] || []; // passing in arguments as arguments (array in an array)
 
-  'warn': function warn() {
-    prefix = '!';
-    log.apply(this, arguments);
-  },
+      var i = 0, len = args.length;
+      for ( ; i < len; i++) {
+        logs.push(args[i]);
+      }
 
-  'title': function title(txt) {
-    console.log('');
-    console.log('---------  ', txt, '  ---------');
-    console.log('');
-  }
-};
+      console.log.apply(this, logs); // console.log accepts an array of arguments, so we must use apply
 
-function log() {
-  var logs = [prefix],
-      i = 0, len = arguments.length;
+      return this;
+    },
 
-  for ( ; i < len; i++) {
-    logs.push(arguments[i]);
-  }
+    'br': function () {
+      console.log(''); // print a blank line
+      return this;
+    }
+  };
 
-  // console.log accepts an array of arguments, so we must use apply
-  console.log.apply(this, logs);
-};
+  return {
+    'log': function log() {
+      return Log(':').print(arguments);
+    },
+
+    'msg': function msg() {
+      return Log('"').print(arguments);
+    },
+
+    'prop': function prop() {
+      return Log('@').print(arguments);
+    },
+
+    'warn': function warn() {
+      return Log('! ERROR:').print(arguments);
+    },
+
+    'cmd': function cmd() {
+      return Log('$').print(arguments);
+    },
+
+    'output': function output() {
+      return Log('>').print(arguments);
+    },
+
+    'br': function br() {
+      return Log().print();
+    },
+
+    'error': function error(err, callback) {
+      var msg = Log('! ERROR:').print([err]);
+
+      if (typeof callback !== 'undefined') { callback(err); }
+      return msg;
+    },
+
+    'title': function title(txt) {
+      return Log().br().print(['---------  ', txt, '  ---------']).br();
+    }
+  };
+})();

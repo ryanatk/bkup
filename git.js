@@ -3,8 +3,6 @@
 // TODO: prompt to update to current version
 
 module.exports = function install(app) {
-  app.title('GIT');
-
   var check = app.spawn('git --version'); // run command to check for git
 
   if (check.match(/^git version/)){

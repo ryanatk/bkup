@@ -3,17 +3,13 @@
 var app = require('./setup.js')({});
 
 /****  setup  ****/
+app.title('GIT');
 require('./git.js')(app); // setup git
 
-// find dotfiles
-  // check for ~/.dotfiles
-    // confirm using them
-    // prompt user for location?
-    // get from github
+app.title ('DOTFILES');
+require('./dotfiles.js')(app); // setup dotfiles
 
 // prompt user for os and env
-
-// bkup each file as we create (not during setup)
 
 /****  rc files  ****/
 // if dir, prompt for variants

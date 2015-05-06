@@ -5,9 +5,11 @@ var childSpawn = require('child_process').spawnSync;
 
 // accepts a string to be run on the command line
 module.exports = function (cmd, silent) {
+  var app = this; // bring app into scope so we can use log functions
+
   // log the command we're running, unless running silently to collect info
   if (!silent)
-    console.log('$', cmd);
+    app.cmd(cmd);
 
   // splicing the command out of the string to match the spawn api
   var args = cmd.split(' ');
@@ -19,7 +21,7 @@ module.exports = function (cmd, silent) {
       output = buf.toString('utf8'); // convert buffer to string and set to output
 
       if (!silent)
-        console.log('>', output);
+        app.output(output);
     }
   };
 
