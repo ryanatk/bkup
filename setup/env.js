@@ -4,7 +4,7 @@
 var inquirer = require('inquirer');
 
 module.exports = function (app) {
-  app.log(app.argv);
+  app.prop('env =', app.argv.env);
 
   return 'work';
 };

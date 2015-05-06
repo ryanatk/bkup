@@ -6,90 +6,33 @@ var fs = Promise.promisifyAll(require('fs'));
 var path = require('path-extra');
 
 module.exports = function (app) {
-
-  var timestamp = new Date().getTime();
-  var File = function (src, tgt) {
-    this.source = src;
-    this.target = tgt;
-  };
-
-  File.prototype = {
-    // remove existing symlink
-    unlink: function (loc) {
-      app.msg('Removed link:', loc);
-      return fs.unlinkAsync(loc);
-    },
-
-    // create a symlink from dotfile location to target code
-    symlink: function (src, tgt) {
-      return fs.symlinkAsync(src, tgt)
-        .then(function () {
-          app.msg('Added symlink:', src, '->', tgt);
-        })
-        .catch(function (e) {
-          app.warn('Could not create symlink:', tgt, e);
-        });
-    },
-
-    // backup the file, adding timestamp
-    backup: function (target) {
-      var oldPath = target.loc;
-      var newPath = oldPath + '.bkup.' + timestamp;
-
-      return fs.renameAsync(oldPath, newPath)
-        .then(function () {
-          app.msg('Created backup:', newPath);
-        })
-        .catch(function (e) {
-          app.warn('Could not create backup:', newPath, e);
-        });
-    },
-
-    sourceFiles: function (dir) {
-      // setup buffer to hold lines
-      var lines = ['#!/bin/bash',''];
-
-      return fs.readdirAsync(dir.source.loc)
-        .each(function (name) {
-          var line = 'source ' + srcDir + '/' + name;
-
-          // comment line, based on user input
-
-          lines.push(line);
-        })
-        .then(function () {
-          // write the file
-          app.msg('Created file:', dir.target.loc);
-          return fs.writeFileAsync(dir.target.loc, lines.join('\n'));
-        })
-        .catch(function (e) {
-          app.warn('failed to write:', dir.target.loc, e);
-        });
-    }
-  };
+  var File = app.file(app);
 
   // get the dotfiles
-  var srcDir = app.backup + '/dotfiles';
-  var targetDir = path.join(app.user, 'tmp');
+  var srcDir = path.join(app.backup, 'dotfiles');
+  var tgtDir = path.join(app.user);
   app.log('location:', srcDir).br();
 
   fs.readdirAsync(srcDir) // get a list of all files in dotfiles directory
     .map(function (name) {
+      if (app.ignore(name)) return; // ignore now, and we'll remove them later
+
       var loc = path.join(srcDir, name);
-      var targetLoc = path.join(targetDir, '.' + name); // where we'll create/symlink the file
+      var targetLoc = path.join(tgtDir, '.' + name); // where we'll create/symlink the file
 
       return fs.statAsync(loc).then(function (stat) { // gather info on each file
-        var source = {
-          'isDirectory': stat.isDirectory(),
-          'loc': loc,
-          'name': name,
-          'size': stat.size
-        };
-        var target = {
-          'loc': targetLoc
-        };
 
-        return new File(source, target);
+        return new File({
+          'source': {
+            'isDirectory': stat.isDirectory(),
+            'loc': loc,
+            'name': name,
+            'size': stat.size
+          },
+          'target': {
+            'loc': targetLoc
+          }
+        });
       });
     })
     .each(function (file) {
@@ -119,6 +62,8 @@ module.exports = function (app) {
 
       if (source.isDirectory) {
         file.sourceFiles(file); // create file with sources
+        // TODO: check argv & prompt for env
+        // TODO: comment out environment and os that don't match
       } else {
         file.symlink(source.loc, file.target.loc); // make a symlink
       }

@@ -6,38 +6,31 @@ var fs = Promise.promisifyAll(require('fs'));
 var path = require('path-extra');
 
 module.exports = function (app) {
-  var srcDir = app.backup + '/downloads';
-  var tmpDir = srcDir + '/tmp';
-  app.log('location:', srcDir).br();
+  var File = app.file(app);
 
-  // make sure there is a tmp dir in srcDir
+  // get the list of downloads
+  var srcDir = path.join(app.backup, 'downloads');
+  var tmpDir = path.join(srcDir, 'tmp');
+  app.log('location:', srcDir).br();
 
   fs.readdirAsync(srcDir) // get a list of all files in downloads directory
     .map(function (name) {
       if (app.ignore(name)) return; // ignore now, and we'll remove them later
 
       var loc = path.join(srcDir, name);
-      // check stats on file
+      // get stats of file
       var stat = fs.statAsync(loc).catch(function ignore() { app.warn('Could not stat:', loc); });
-      // get contents of file
-      var data = fs.readFileAsync(loc, 'utf8').catch(function ignore() { app.warn('Could not read:', loc); });
       // see if file has already been downloaded into tmp
       var tmp = fs.statAsync(path.join(tmpDir, name)).then(function tmp() { return true; }).catch(function tmp() { return false; });
 
-      return join(stat, data, tmp, function (stat, data, tmp) {
-        var ext = name.split('.')[1];
-
-        if (ext === 'json')
-          data = JSON.parse(data);
-
-        return {
+      return join(stat, tmp, function (stat, tmp) {
+        return new File({
           'name': name,
           'loc': loc,
           'isDirectory': stat.isDirectory(),
-          'data': data,
-          'ext': ext,
-          'alreadyDownloaded': tmp
-        };
+          'ext': name.split('.')[1] || '', // file extension (json or js)
+          'isDownloaded': tmp // check if it exists in tmp
+        });
       });
 
     })
@@ -51,10 +44,31 @@ module.exports = function (app) {
       return files;
     })
     .each(function (file) {
-      app.log(file);
-      // check if it exists in tmp
-      // if dmg, download (and install?)
-      // if zip, download (and unzip?)
-      // if url, open (and click?)
+      // require js files and run
+      if (file.ext === 'js')
+        require(file.loc)(file);
+        // TODO: error handling
+
+      // read json files and dowload from url
+      if (file.ext === 'json') {
+        fs.readFileAsync(file.loc, 'utf8').then(function (data) {
+          return JSON.parse(data); // parse JSON from the file data
+        }).then(function (data) {
+          // TODO: check tmp before downloading
+          // TODO: check Applications folder before downloading
+          // TODO: prompt for interactive or download all
+          if (data.dmg) { // if dmg, download
+            file.download(data.dmg, path.join(tmpDir, data.name + '.dmg'));
+          }
+          else if (data.zip) { // if zip, download
+            file.download(data.zip, path.join(tmpDir, data.name + '.zip'));
+          }
+          else if (data.link) { // if url, open in a browser
+            app.spawn('open ' + data.link);
+          } else {
+            app.warn('Your download does not include a proper url:', file.name);
+          }
+        });
+      }
     });
 };
