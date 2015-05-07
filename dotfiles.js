@@ -57,6 +57,7 @@ module.exports = function (app) {
       }
     })
     .each(function (file) {
+      // TODO: if interactive, prompt for each rc
       // point to sources
       var source = file.source;
 
@@ -64,6 +65,7 @@ module.exports = function (app) {
         file.sourceFiles(file); // create file with sources
         // TODO: check argv & prompt for env
         // TODO: comment out environment and os that don't match
+        // TODO: always use main+private
       } else {
         file.symlink(source.loc, file.target.loc); // make a symlink
       }

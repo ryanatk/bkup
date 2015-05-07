@@ -10,7 +10,8 @@ module.exports = function (app) {
 
   // get the list of downloads
   var srcDir = path.join(app.backup, 'downloads');
-  var tmpDir = path.join(srcDir, 'tmp');
+  var tgtDir = path.join(srcDir, 'tmp');
+  // TODO: download to ~/Downloads (or path.join(srcDir, 'tmp'), prompt to add to .gitignore)
   app.log('location:', srcDir).br();
 
   fs.readdirAsync(srcDir) // get a list of all files in downloads directory
@@ -21,7 +22,7 @@ module.exports = function (app) {
       // get stats of file
       var stat = fs.statAsync(loc).catch(function ignore() { app.warn('Could not stat:', loc); });
       // see if file has already been downloaded into tmp
-      var tmp = fs.statAsync(path.join(tmpDir, name)).then(function tmp() { return true; }).catch(function tmp() { return false; });
+      var tmp = fs.statAsync(path.join(tgtDir, name)).then(function tmp() { return true; }).catch(function tmp() { return false; });
 
       return join(stat, tmp, function (stat, tmp) {
         return new File({
@@ -55,17 +56,17 @@ module.exports = function (app) {
           return JSON.parse(data); // parse JSON from the file data
         }).then(function (data) {
           // TODO: check tmp before downloading
-          // TODO: check Applications folder before downloading
+          // TODO: check Applications folder before downloading (not sure if this will work unless i make sure names match)
           // TODO: prompt for interactive or download all
           if (data.dmg) { // if dmg, download
-            file.download(data.dmg, path.join(tmpDir, data.name + '.dmg'));
+            file.download(data.dmg, path.join(tgtDir, data.name + '.dmg'));
           }
           else if (data.zip) { // if zip, download
-            file.download(data.zip, path.join(tmpDir, data.name + '.zip'));
+            file.download(data.zip, path.join(tgtDir, data.name + '.zip'));
           }
           else if (data.link) { // if url, open in a browser
             app.spawn('open ' + data.link);
-          } else {
+          } else { // if no good url was found
             app.warn('Your download does not include a proper url:', file.name);
           }
         });
