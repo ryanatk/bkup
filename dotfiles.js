@@ -9,8 +9,8 @@ module.exports = function (app) {
   var File = app.file(app);
 
   // get the dotfiles
-  var srcDir = path.join(app.backup, 'dotfiles');
-  var tgtDir = path.join(app.user);
+  var srcDir = path.join(app.user.backup, 'dotfiles');
+  var tgtDir = path.join(app.user.home);
   app.log('location:', srcDir).br();
 
   fs.readdirAsync(srcDir) // get a list of all files in dotfiles directory
@@ -51,9 +51,9 @@ module.exports = function (app) {
       var target = file.target;
 
       if (target.isLink) {
-        file.unlink(file.target.loc); // remove the symlink
+        file.unlink(target.loc); // remove the symlink
       } else if (target.exists) {
-        file.backup(file.target); // back it up
+        file.backup(target.loc); // back it up
       }
     })
     .each(function (file) {

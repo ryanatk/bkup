@@ -3,9 +3,10 @@
 // TODO: prompt to update to current version
 
 module.exports = function install(app) {
-  var check = app.spawn('git --version'); // run command to check for git
+  // run command to check for git
+  var gotGit = app.spawn('git --version').match(/^git version/);
 
-  if (check.match(/^git version/)){
+  if (gotGit){
     app.msg('You\'ve got git');
   } else {
     app.msg('You gotta get git');
@@ -27,4 +28,6 @@ module.exports = function install(app) {
     var gprompt = new File('git-prompt.sh');
     gprompt.curl('https://raw.github.com/git/git/master/contrib/completion/git-prompt.sh');
   */
+
+  return gotGit;
 };

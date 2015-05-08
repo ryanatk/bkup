@@ -3,7 +3,7 @@
 var argv = require('minimist')(process.argv.slice(2));
 
 module.exports = function (app) {
-  app.prop('argv =', argv);
+  app.log(argv);
 
   return argv;
 };

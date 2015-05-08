@@ -13,6 +13,7 @@ module.exports = function (app) {
     for (var key in obj) {
       this[key] = obj[key];
     }
+    return this;
   };
 
   File.prototype = {

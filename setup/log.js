@@ -1,6 +1,6 @@
 // helper to standardize log appearance
 
-module.exports = (function () {
+module.exports = function (app) {
   var prefix;
   var Log = function log(prefix) {
     if (!(this instanceof Log)) // saves us from needing to use the new keyword every time
@@ -11,6 +11,8 @@ module.exports = (function () {
 
   Log.prototype = {
     'print': function () {
+      if (!app.debug) return;
+
       var logs = [this.prefix];
       var args = arguments[0] || []; // passing in arguments as arguments (array in an array)
 
@@ -39,8 +41,20 @@ module.exports = (function () {
       return Log('"').print(arguments);
     },
 
+    // take a key of app, and build a useful message
     'prop': function prop() {
-      return Log('@').print(arguments);
+      var key = arguments[0].split('.')[0];
+      var sub = arguments[0].split('.')[1];
+      var val = sub ? app[key][sub] : app[key];
+
+      var args = ['app.' + arguments[0], '=', typeof val + ',', !!val + ',', val];
+      var i = 1, len = arguments.length; // start with 1, since we've already used index 0
+
+      for ( ; i < len; i++) {
+        args.push(arguments[i]);
+      }
+
+      return Log('@').print(args);
     },
 
     'warn': function warn() {
@@ -60,6 +74,8 @@ module.exports = (function () {
     },
 
     'error': function error(err, callback) {
+      if (!err) return;
+
       var msg = Log('! ERROR:').print([err]);
 
       if (typeof callback !== 'undefined') { callback(err); }
@@ -72,4 +88,4 @@ module.exports = (function () {
       // (not necessary if i can run each group synchronously, using prompts)
     }
   };
-})();
+};

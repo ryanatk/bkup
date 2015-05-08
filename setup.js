@@ -5,7 +5,7 @@ var path = require('path-extra');
 
 module.exports = function (app) {
   // log to console
-  var logjs = require('./setup/log.js');
+  var logjs = require('./setup/log.js')(app);
   for (var key in logjs) {
     app[key] = logjs[key];
   }
@@ -15,13 +15,18 @@ module.exports = function (app) {
   app.ignore = require('./setup/ignore.js');
   app.file = require('./setup/file.js');
 
-  // config properties
-  app.os = require('./setup/os.js')(app);
-  app.argv = require('./setup/argv.js')(app);
-  app.env = require('./setup/env.js')(app);
-  app.user = path.homedir();
+  // runtime properties
   app.root = __dirname;
-  app.backup = app.user + '/.backup'; // TODO: allow argv
+  app.user = { home: path.homedir(), };
+  app.q = { continue: true }; // holds prompt questions
+  app.argv = require('./setup/argv.js')(app);
+  app.debug = app.argv.debug;
+
+  // config properties
+  app.rc = require('./setup/rc.js')(app);
+  app.os = require('./setup/os.js')(app);
+  app.env = require('./setup/env.js')(app);
+  app.user.backup = path.join(app.user.home, '.backup'); // TODO: allow argv
 
   return app;
 };
