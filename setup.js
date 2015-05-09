@@ -17,7 +17,7 @@ module.exports = function (app) {
   app.spawn = require('./setup/spawn.js'); // run sync cmd with output returned
   app.exec = require('./setup/exec.js')(app); // run async cmd with [callback]
   app.ignore = require('./setup/ignore.js');
-  app.file = require('./setup/file.js');
+  app.file = require('./setup/file.js')(app);
   app.argv = require('./setup/argv.js')(app);
 
   // runtime properties

@@ -6,11 +6,10 @@ var fs = Promise.promisifyAll(require('fs'));
 var path = require('path-extra');
 
 module.exports = function (app) {
-  var File = app.file(app);
-
   // get the dotfiles
   var srcDir = path.join(app.user.backup, 'dotfiles');
   var tgtDir = path.join(app.user.home);
+
   app.log('location:', srcDir).br();
 
   fs.readdirAsync(srcDir) // get a list of all files in dotfiles directory
@@ -22,7 +21,7 @@ module.exports = function (app) {
 
       return fs.statAsync(loc).then(function (stat) { // gather info on each file
 
-        return new File({
+        return new app.file({
           'source': {
             'isDirectory': stat.isDirectory(),
             'loc': loc,

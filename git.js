@@ -41,7 +41,7 @@ module.exports = function install(app) {
       var gitName = (answers.rc) ? app.rc.data.gitName : undefined;
 
       app.prop('git.name');
-      return !gitName && app.q.continue; // if set in argv, don't ask
+      return !gitName && app.q.continue;
     },
     'validate': function (input) {
       if (!input) return false;
@@ -61,7 +61,7 @@ module.exports = function install(app) {
       var gitEmail = (answers.rc) ? app.rc.data.gitEmail : undefined;
 
       app.prop('git.email');
-      return !gitEmail && app.q.continue; // if set in argv, don't ask
+      return !gitEmail && app.q.continue;
     },
     'validate': function (input) {
       if (!input) return false;

@@ -17,7 +17,7 @@ module.exports = function (app) {
 
       // back it up
       if (exists)
-        app.file(app)().backup(loc);
+        app.file().backup(loc);
 
       // if data exists, that means the file exists, so we should ask
       app.prop('rc');

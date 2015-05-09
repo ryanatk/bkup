@@ -6,8 +6,6 @@ var fs = Promise.promisifyAll(require('fs'));
 var path = require('path-extra');
 
 module.exports = function (app) {
-  var File = app.file(app);
-
   // get the list of downloads
   var srcDir = path.join(app.user.backup, 'downloads');
   var tgtDir = path.join(srcDir, 'tmp');
@@ -25,7 +23,7 @@ module.exports = function (app) {
       var tmp = fs.statAsync(path.join(tgtDir, name)).then(function tmp() { return true; }).catch(function tmp() { return false; });
 
       return join(stat, tmp, function (stat, tmp) {
-        return new File({
+        return new app.file({
           'name': name,
           'loc': loc,
           'isDirectory': stat.isDirectory(),
