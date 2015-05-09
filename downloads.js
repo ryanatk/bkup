@@ -7,7 +7,7 @@ var path = require('path-extra');
 
 module.exports = function (app) {
   // get the list of downloads
-  var srcDir = path.join(app.user.backup, 'downloads');
+  var srcDir = path.join(app.user.bkup, 'downloads');
   var tgtDir = path.join(srcDir, 'tmp');
   // TODO: download to ~/Downloads (or path.join(srcDir, 'tmp'), prompt to add to .gitignore)
   app.log('location:', srcDir).br();
