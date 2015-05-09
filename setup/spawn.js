@@ -7,6 +7,9 @@ var childSpawn = require('child_process').spawnSync;
 module.exports = function (cmd, silent) {
   var app = this; // bring app into scope so we can use log functions
 
+  if (!app.debug)
+    silent = true;
+
   // log the command we're running, unless running silently to collect info
   if (!silent)
     app.cmd(cmd);
@@ -30,5 +33,5 @@ module.exports = function (cmd, silent) {
   set(response.error);
 
   // if output was not set, send back a 
-  return output || 'no stdout or error';
+  return output || '';
 };
