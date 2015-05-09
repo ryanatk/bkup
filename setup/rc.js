@@ -4,41 +4,36 @@ var fs = require("fs");
 var path = require('path-extra');
 
 module.exports = function (app) {
-  return {
-    'read': function () {
+  var loc = path.join(app.user.home, '.bkuprc');
+  var exists = fs.existsSync(loc);
+
+  app.q.rc = {
+    'type': 'confirm',
+    'name': 'rc',
+    'message': 'Would you like to use your previous bkup configuration?',
+    'when': function (answers) { app.log('answers:', answers);
       // read ~/.bkuprc
-      app.rc.loc = path.join(app.user.home, '.bkuprc');
-      app.rc.exists = fs.existsSync(app.rc.loc);
-      var data = (app.rc.exists) ? JSON.parse(fs.readFileSync(app.rc.loc, 'utf8')) : {};
+      app.rc.data = (exists) ? JSON.parse(fs.readFileSync(loc, 'utf8')) : {};
 
-      // if not set on command line, prompt for rc location
-      app.q.rc = {
-        'type': 'list',
-        'name': 'rc',
-        'message': 'Would you like to use your previous bkup configuration?',
-        'choices': ['yes', 'no'],
-        'when': function (answers) {
-          app.prop('rc.loc');
-          return Object.keys(app.rc.data).length && app.q.continue; // if ~/.bkuprc doesn't exist, don't ask
-        }
-      };
+      // back it up
+      if (exists)
+        app.file(app)().backup(loc);
 
-      return data;
-    },
+      // if data exists, that means the file exists, so we should ask
+      app.prop('rc');
+      return exists && app.q.continue;
+    }
+  };
 
-    'write': function (obj) {
-      if (app.rc.exists) {
-        var File = app.file(app);
-        File().backup(app.rc);
-      }
+  return {
+    // on every change, write to app.rc and recreate ~/.bkuprc
+    'write': function (key, val) {
+      app.rc.data[key] = val;
 
-      // on every change, write to app.rc and recreate ~/.bkuprc
-      fs.writeFile(app.rc.loc, JSON.stringify(app.rc.data), 'utf8', function (err) {
+      fs.writeFile(loc, JSON.stringify(app.rc.data), 'utf8', function (err) {
         app.error(err);
-        app.msg('Saved to', app.rc.loc);
       });
-
-      return;
+      return true;
     }
   };
 };

@@ -10,24 +10,19 @@ var app = require('./setup.js')({});
 //app.prop('q.os');
 //app.prop('q.env');
 
-app.rc.data = app.rc.read(app);
-app.prop('rc.data');
-
 var q = app.q;
 var prompts = [
   q.rc,
   q.os,
-  q.env
+  q.env,
+  q.github,
+  q.gitName,
+  q.gitEmail
 ];
 
 inquirer.prompt(prompts, function (answers) {
     app.log('answers:', answers);
 
-    for (var key in answers) {
-      app.rc.data[key] = answers[key];
-    }
-
-    app.rc.write(app.rc.data);
       /*
     app.title('GIT'); // setup git
     var gotGit = require('./git.js')(app);

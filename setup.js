@@ -31,5 +31,8 @@ module.exports = function (app) {
   app.env = require('./setup/env.js')(app);
   app.user.backup = path.join(app.user.home, '.backup'); // TODO: allow argv
 
+  // prompts and scripts
+  app.git = require('./git.js')(app);
+
   return app;
 };

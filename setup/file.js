@@ -1,7 +1,7 @@
 // prototype object for files
 
 var Promise = require("bluebird");
-var fs = Promise.promisifyAll(require('fs'));
+var fs = Promise.promisifyAll(require('fs-extra'));
 var request = Promise.promisifyAll(require('request'));
 
 module.exports = function (app) {
@@ -35,11 +35,11 @@ module.exports = function (app) {
     },
 
     // backup the file, adding timestamp
-    backup: function backup(target) {
-      var oldPath = target.loc;
+    backup: function backup(loc) {
+      var oldPath = loc;
       var newPath = oldPath + '.bkup.' + timestamp;
 
-      return fs.renameAsync(oldPath, newPath)
+      return fs.copyAsync(oldPath, newPath)
         .then(function () {
           app.msg('Created backup:', newPath);
         })
