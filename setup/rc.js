@@ -4,6 +4,7 @@ var fs = require("fs");
 var path = require('path-extra');
 
 module.exports = function (app) {
+  var rc = app.file(path.join(app.user.home, '.bkuprc'));
   var loc = path.join(app.user.home, '.bkuprc');
   var exists = fs.existsSync(loc);
 
@@ -13,11 +14,11 @@ module.exports = function (app) {
     'message': 'Would you like to use your previous bkup configuration?',
     'when': function (answers) { app.log('answers:', answers);
       // read ~/.bkuprc
-      app.rc.data = (exists) ? JSON.parse(fs.readFileSync(loc, 'utf8')) : {};
+      app.rc.data = (exists) ? JSON.parse(rc.read().data) : {};
 
       // back it up
       if (exists)
-        app.file().backup(loc);
+        rc.backup();
 
       // if data exists, that means the file exists, so we should ask
       app.prop('rc');
@@ -30,9 +31,7 @@ module.exports = function (app) {
     'write': function (key, val) {
       app.rc.data[key] = val;
 
-      fs.writeFile(loc, JSON.stringify(app.rc.data), 'utf8', function (err) {
-        app.error(err);
-      });
+      rc.write(JSON.stringify(app.rc.data));
       return true;
     }
   };

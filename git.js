@@ -2,6 +2,8 @@
 // if not, open install page in browser
 // TODO: prompt to update to current version
 
+var path = require('path-extra');
+
 module.exports = function install(app) {
   // ask for github username (add to .bkuprc)
   app.q.github = {
@@ -10,6 +12,7 @@ module.exports = function install(app) {
     'message': 'What is your github username?',
     'default': function () { return app.rc.data.github; },
     'when': function (answers) { app.log('answers:', answers);
+      app.title ('GIT'); // setup dotfiles
       var github;
 
       // if we don't have git yet, don't bother continuing
@@ -70,17 +73,30 @@ module.exports = function install(app) {
     }
   };
 
+  // git setup
+  app.q.gitSetup = {
+    'type': 'input',
+    'name': 'gitSetup',
+    'message': 'Now we\'ll setup your git completetion, git prompt, and settings',
+    'default': 'ok',
+    'when': function (answers) { app.log('answers:', answers);
+      return app.q.continue;
+    },
+    'validate': function (input) {
+      if (input === 'n' || input === 'no') return false;
 
-  // so i can do "git push" to push my current branch
-  // git config --global push.default simple
+      // so i can do "git push" to push my current branch
+      app.exec('git config --global push.default simple');
 
-  /*
-    var completion = new File('git-completion.sh');
-    completion.curl('https://raw.github.com/git/git/master/contrib/completion/git-completion.bash');
+      app.file(path.join(app.user.home, '.git-completion.sh'))
+        .curl('https://raw.github.com/git/git/master/contrib/completion/git-completion.bash');
 
-    var gprompt = new File('git-prompt.sh');
-    gprompt.curl('https://raw.github.com/git/git/master/contrib/completion/git-prompt.sh');
-  */
+      app.file(path.join(app.user.home, '.git-prompt.sh'))
+        .curl('https://raw.github.com/git/git/master/contrib/completion/git-prompt.bash');
+
+      return true;
+    }
+  };
 
   // run command to check for git
   return {

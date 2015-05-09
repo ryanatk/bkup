@@ -6,68 +6,77 @@ var fs = Promise.promisifyAll(require('fs'));
 var path = require('path-extra');
 
 module.exports = function (app) {
-  // get the dotfiles
-  var srcDir = path.join(app.user.backup, 'dotfiles');
-  var tgtDir = path.join(app.user.home);
+  // dotfiles setup
+  app.q.dotfiles = {
+    'type': 'input',
+    'name': 'dotfiles',
+    'message': 'Now we\'ll setup your dotfiles',
+    'default': 'ok',
+    'when': function (answers) { app.log('answers:', answers);
+      app.title ('DOTFILES'); // setup dotfiles
+      return app.q.continue;
+    },
+    'validate': function (input) {
+      if (input === 'n' || input === 'no') return false;
 
-  app.log('location:', srcDir).br();
+      // get the dotfiles
+      var srcDir = path.join(app.user.bkup, 'dotfiles');
+      var tgtDir = path.join(app.user.home);
 
-  fs.readdirAsync(srcDir) // get a list of all files in dotfiles directory
-    .map(function (name) {
-      if (app.ignore(name)) return; // ignore now, and we'll remove them later
+      app.log('dotfiles location:', srcDir).br();
 
-      var loc = path.join(srcDir, name);
-      var targetLoc = path.join(tgtDir, '.' + name); // where we'll create/symlink the file
+      fs.readdirAsync(srcDir) // get a list of all files in dotfiles directory
+        .map(function (name) {
+          if (app.ignore(name)) return; // ignore now, and we'll remove them later
 
-      return fs.statAsync(loc).then(function (stat) { // gather info on each file
+          var loc = path.join(srcDir, name);
+          var target = path.join(tgtDir, '.' + name); // where we'll create/symlink the file
 
-        return new app.file({
-          'source': {
-            'isDirectory': stat.isDirectory(),
-            'loc': loc,
-            'name': name,
-            'size': stat.size
-          },
-          'target': {
-            'loc': targetLoc
+          return fs.statAsync(loc).then(function (stat) { // gather info on each file
+
+            return new app.file({
+              'isDirectory': stat.isDirectory(),
+              'loc': loc,
+              'name': name,
+              'target': target
+            });
+          });
+        })
+        .each(function (file) {
+          // if target does not exist, no actions needed 
+          if (!this.exists) return;
+
+          // handle targets that already exist
+          return fs.lstatAsync(file.target)
+            .then(function (stat) {
+              if (stat.isSymbolicLink()) {
+                file.unlink(file.target); // remove the symlink
+              } else {
+                file.backup(file.target); // back it up
+              }
+            })
+            .catch(function (e) {
+              app.msg('target does not exist, no action needed', file.target, e);
+            });
+        })
+        .each(function (file) {
+          // TODO: if interactive, prompt for each rc
+
+          if (file.isDirectory) {
+            file.sourceFiles(srcDir); // create file with sources
+            // TODO: check argv & prompt for env
+            // TODO: comment out environment and os that don't match
+            // TODO: always use main+private
+          } else {
+            file.symlink(loc, file.target); // make a symlink
           }
-        });
-      });
-    })
-    .each(function (file) {
-      // update each file with info on its target
-      return fs.lstatAsync(file.target.loc)
-        .then(function (stat) {
-          file.target.exists = true;
-          file.target.isLink = stat.isSymbolicLink();
         })
         .catch(function (e) {
-          file.target.exists = false;
+          app.warn('We cannot find your dotfiles', e);
         });
-    })
-    .each(function (file) {
-      // clean up targets
-      var target = file.target;
 
-      if (target.isLink) {
-        file.unlink(target.loc); // remove the symlink
-      } else if (target.exists) {
-        file.backup(target.loc); // back it up
-      }
-    })
-    .each(function (file) {
-      // TODO: if interactive, prompt for each rc
-      // point to sources
-      var source = file.source;
-
-      if (source.isDirectory) {
-        file.sourceFiles(file); // create file with sources
-        // TODO: check argv & prompt for env
-        // TODO: comment out environment and os that don't match
-        // TODO: always use main+private
-      } else {
-        file.symlink(source.loc, file.target.loc); // make a symlink
-      }
-    });
+      return true;
+    }
+  };
 
 };

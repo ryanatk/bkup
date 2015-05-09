@@ -6,25 +6,48 @@ var request = Promise.promisifyAll(require('request'));
 
 module.exports = function (app) {
   var timestamp = new Date().getTime();
-  var File = function (obj) {
+  var File = function (args) {
     if (!(this instanceof File)) // saves us from needing to use the new keyword every time
-      return new File(obj);
+      return new File(args);
 
-    for (var key in obj) {
-      this[key] = obj[key];
+    app.log('+++', typeof args, args);
+    if (typeof args === 'string') {
+      this.loc = args;
+    } else if (typeof args === 'object') {
+      for (var key in args) {
+        this[key] = args[key];
+      }
     }
+
+    this.exists = fs.existsSync(this.loc);
+    // TODO: existsSync will be deprecated, but how else can i set this.exists synchronously? (i use it in prompt validation)
+
+    app.log('+++', this);
     return this;
   };
 
   File.prototype = {
     // remove existing symlink
     unlink: function unlink(loc) {
-      app.msg('Removed link:', loc);
-      return fs.unlinkAsync(loc);
+      if (!this.exists) return this;
+
+      loc = loc || this.loc;
+      fs.unlinkAsync(loc)
+        .then(function () {
+          app.msg('Removed link:', loc);
+        })
+        .catch(function (e) {
+            app.log('&&&', typeof loc, loc)
+          app.msg('Could not remove link:', loc, e);
+        });
+
+      return this;
     },
 
     // create a symlink from dotfile location to target code
     symlink: function symlink(src, tgt) {
+      if (this.exists) return this;
+
       return fs.symlinkAsync(src, tgt)
         .then(function () {
           app.msg('Added symlink:', src, '->', tgt);
@@ -36,6 +59,7 @@ module.exports = function (app) {
 
     // backup the file, adding timestamp
     backup: function backup(loc) {
+      loc = loc || this.loc;
       var oldPath = loc;
       var newPath = oldPath + '.bkup.' + timestamp;
 
@@ -72,20 +96,62 @@ module.exports = function (app) {
         });
     },
 
+    clone: function curl(url, loc) {
+      loc = loc || this.loc;
+      app.spawn('git clone ' + url + ' ' + loc);
+      return this;
+    },
+
+    curl: function curl(url, loc) {
+      if (this.exists) return this;
+
+      loc = loc || this.loc;
+      // download from url and write to file
+      request({'uri': url}, function (err, res, body) {
+        if (err || !body) {
+          console.log('Failed to download:', url);
+        } else {
+          console.log('Success downloaded:', url);
+          fs.writeFile(loc, body);
+        }
+      });
+      return this;
+    },
+
     download: function download(url, loc) {
+      if (this.exists) return this;
+
       // request url (DIRECT CALL TO `request` NOT PROMISIFIED (for streaming))
       request(url)
         // stream the file directly to disk
         .pipe(fs.createWriteStream(loc))
         // TODO: add progress bars
         .on('close',function(){
+          app.log('Downloading:', url, '=>', loc)
           app.spawn('open ' + loc);
         })
         .on('error',function(e){
           console.error('problem downloading: ' + filename);
         });
 
-      return app.log('Downloading:', url, '=>', loc);
+      return this;
+    },
+
+    read: function () {
+      this.data = fs.readFileSync(this.loc, 'utf8');
+      return this;
+    },
+
+    write: function (data) {
+      fs.writeFileAsync(this.loc, data, 'utf8')
+        .then(function () {
+          app.msg('Wrote file:', this.loc);
+        })
+        .catch(function (err) {
+          app.error(err);
+        });
+
+      return this;
     }
   };
 
