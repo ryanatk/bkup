@@ -2,6 +2,7 @@
 // if not, open install page in browser
 // TODO: prompt to update to current version
 
+var fs = require('fs-extra');
 var path = require('path-extra');
 
 module.exports = function install(app) {
@@ -34,42 +35,64 @@ module.exports = function install(app) {
   };
 
   // set name
-  app.q.gitName = {
+  app.q.name = {
     'type': 'input',
-    'name': 'gitName',
+    'name': 'name',
     'message': 'What is your name? (this name will be on your git commits)',
     'default': function () { return app.git.name; },
     'when': function (answers) { app.log('answers:', answers);
       // if we are reading from rc use rc.data
-      var gitName = (answers.rc) ? app.rc.data.gitName : undefined;
+      var name = (answers.rc) ? app.rc.data.name : undefined;
 
       app.prop('git.name');
-      return !gitName && app.q.continue;
+      return !name && app.q.continue;
     },
     'validate': function (input) {
       if (!input) return false;
       app.exec('git config --global user.name "' + input + '"');
-      return app.rc.write('gitName', input);
+      return app.rc.write('name', input);
     }
   };
 
   // set email
-  app.q.gitEmail = {
+  app.q.email = {
     'type': 'input',
-    'name': 'gitEmail',
+    'name': 'email',
     'message': 'What is your email address? (this will be on your git commits)',
     'default': function () { return app.git.email; },
     'when': function (answers) { app.log('answers:', answers);
       // if we are reading from rc use rc.data
-      var gitEmail = (answers.rc) ? app.rc.data.gitEmail : undefined;
+      var email = (answers.rc) ? app.rc.data.email : undefined;
 
       app.prop('git.email');
-      return !gitEmail && app.q.continue;
+      return !email && app.q.continue;
     },
     'validate': function (input) {
       if (!input) return false;
       app.exec('git config --global user.email "' + input + '"');
-      return app.rc.write('gitEmail', input);
+      return app.rc.write('email', input);
+    }
+  };
+
+  // set email
+  app.q.sshKey = {
+    'type': 'confirm',
+    'name': 'sshKey',
+    'message': 'Update your ssh key in github (we\'ll copy this to your clipboard)',
+    'default': function () { return app.git.email; },
+    'when': function (answers) { app.log('answers:', answers);
+      var sshKey = path.join(app.user.home, '.ssh/id_rsa.pub');
+      fs.readFileAsync(sshKey)
+        .then(function () {
+          app.exec('cat ' + sshKey + ' | pbcopy');
+          app.exec('open https://github.com/settings/ssh');
+        })
+        .catch(function (e) {
+          app.exec('ssh-keygen -t rsa -C "' + app.rc.data.email + '"');
+          app.exec('cat ' + sshKey + ' | pbcopy');
+          app.exec('open https://github.com/settings/ssh');
+        });
+      return app.q.continue;
     }
   };
 

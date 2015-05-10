@@ -12,8 +12,9 @@ var prompts = [
   q.os,
   q.env,
   q.github,
-  q.gitName,
-  q.gitEmail,
+  q.name,
+  q.email,
+  q.sshKey,
   q.gitSetup,
   q.bkupLoc,
   q.bkupCloneURL

@@ -8,6 +8,8 @@ module.exports = function (app) {
 
     exec(cmd, function (error) {
       app.error(error);
+      if (callback)
+        callback();
     });
   };
 };
