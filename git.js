@@ -112,10 +112,10 @@ module.exports = function install(app) {
       app.exec('git config --global push.default simple');
 
       app.file(path.join(app.user.home, '.git-completion.sh'))
-        .curl('https://raw.github.com/git/git/master/contrib/completion/git-completion.bash');
+        .curl('https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash');
 
       app.file(path.join(app.user.home, '.git-prompt.sh'))
-        .curl('https://raw.github.com/git/git/master/contrib/completion/git-prompt.bash');
+        .curl('https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh');
 
       return true;
     }
