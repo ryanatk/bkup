@@ -14,7 +14,7 @@ module.exports = function (app) {
     'default': 'ok',
     'when': function (answers) { app.log('answers:', answers);
       app.title ('DOTFILES'); // setup dotfiles
-      return app.q.continue;
+      return app.continue;
     },
     'validate': function (input) {
       if (input === 'n' || input === 'no') return false;

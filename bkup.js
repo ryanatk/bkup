@@ -13,7 +13,7 @@ module.exports = function install(app) {
       var loc = (answers.rc) ? app.rc.data.bkupLoc : app.user.bkup;
       bkup = app.file(loc);
 
-      return app.q.continue;
+      return app.continue;
     },
     'validate': function (input) {
       bkup.loc = input;
@@ -30,11 +30,11 @@ module.exports = function install(app) {
       // if we are reading from rc use rc.data
       var cloneURL = (answers.rc) ? app.rc.data.bkupClone : undefined;
 
-      return !bkup.exists && !cloneURL && app.q.continue;
+      return !bkup.exists && !cloneURL && app.continue;
     },
     'validate': function (input) {
       // if we're cloning, we need to stop running more questions
-      app.q.continue = false;
+      app.continue = false;
 
       bkup.clone(input);
       return app.rc.write('bkupCloneURL', input);

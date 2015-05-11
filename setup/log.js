@@ -11,8 +11,6 @@ module.exports = function (app) {
 
   Log.prototype = {
     'print': function () {
-      if (!app.debug) return;
-
       var logs = [this.prefix];
       var args = arguments[0] || []; // passing in arguments as arguments (array in an array)
 
@@ -34,6 +32,8 @@ module.exports = function (app) {
 
   return {
     'log': function log() {
+      if (!app.debug) return;
+
       return Log(':').print(arguments);
     },
 
@@ -43,6 +43,8 @@ module.exports = function (app) {
 
     // take a key of app, and build a useful message
     'prop': function prop() {
+      if (!app.debug) return;
+
       var key = arguments[0].split('.')[0];
       var sub = arguments[0].split('.')[1];
       var val = sub ? app[key][sub] : app[key];
@@ -58,6 +60,8 @@ module.exports = function (app) {
     },
 
     'warn': function warn() {
+      if (!app.debug) return;
+
       return Log('! ERROR:').print(arguments);
     },
 
@@ -74,6 +78,8 @@ module.exports = function (app) {
     },
 
     'error': function error(err, callback) {
+      if (!app.debug) return;
+
       if (!err) return;
 
       var msg = Log('! ERROR:').print([err]);

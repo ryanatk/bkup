@@ -56,6 +56,11 @@ module.exports = function (app) {
           // TODO: check tmp before downloading
           // TODO: check Applications folder before downloading (not sure if this will work unless i make sure names match)
           // TODO: prompt for interactive or download all
+
+          var url = data.dmg || data.zip || data.link;
+          app.exec('open ' + url);
+
+          /*
           if (data.dmg) { // if dmg, download
             file.download(data.dmg, path.join(tgtDir, data.name + '.dmg'));
           }
@@ -67,6 +72,7 @@ module.exports = function (app) {
           } else { // if no good url was found
             app.warn('Your download does not include a proper url:', file.name);
           }
+          */
         });
       }
     });

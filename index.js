@@ -6,18 +6,20 @@ var inquirer = require('inquirer');
 /****  setup  ****/
 var app = require('./setup.js')({});
 
-var q = app.q;
+var q = app.prompts;
 var prompts = [
-  q.rc,
-  q.os,
-  q.env,
-  q.github,
-  q.name,
-  q.email,
-  q.sshKey,
-  q.gitSetup,
-  q.bkupLoc,
-  q.bkupCloneURL
+  q.rc
+, q.os
+, q.env
+, q.github
+, q.name
+/*
+, q.email
+, q.sshKey
+, q.gitSetup
+, q.bkupLoc
+, q.bkupCloneURL
+  */
 ];
 
 inquirer.prompt(prompts, function (answers) {

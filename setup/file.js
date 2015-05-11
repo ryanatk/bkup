@@ -65,7 +65,7 @@ module.exports = function (app) {
 
       return fs.copyAsync(oldPath, newPath)
         .then(function () {
-          app.msg('Created backup:', newPath);
+          app.log('Created backup:', newPath);
         })
         .catch(function (e) {
           app.warn('Could not create backup:', newPath, e);
@@ -144,8 +144,8 @@ module.exports = function (app) {
 
     write: function (data) {
       fs.writeFileAsync(this.loc, data, 'utf8')
-        .then(function () {
-          app.msg('Wrote file:', this.loc);
+        .then(function (file) {
+          app.msg('Wrote file:', file.loc);
         })
         .catch(function (err) {
           app.error(err);

@@ -5,54 +5,43 @@
 var fs = require('fs-extra');
 var path = require('path-extra');
 
-module.exports = function install(app) {
-  // ask for github username (add to .bkuprc)
-  app.q.github = {
-    'type': 'input',
-    'name': 'github',
-    'message': 'What is your github username?',
-    'default': function () { return app.rc.data.github; },
-    'when': function (answers) { app.log('answers:', answers);
+module.exports = function (app) {
+  return {
+    github: function () {
       app.title ('GIT'); // setup dotfiles
       var github;
+      var gotGit = app.spawn('git --version').match(/^git version/);
 
       // if we don't have git yet, don't bother continuing
-      if (!app.git.gotIt) {
-        app.msg('Please download and install git before continuing');
-        app.spawn('open http://git-scm.com/downloads');
-        app.q.continue = false;
-      } else {
+      if (gotGit) {
         // use argv first, or if we are reading from rc use rc.data
-        github = (answers.rc) ? app.rc.data.github : undefined;
+        github = (app.useRC) ? app.rc.data.github : undefined;
+      } else {
+        app.msg('Please download and install git before continuing');
+        app.exec('open http://git-scm.com/downloads');
+        app.continue = false;
       }
 
-      app.prop('git.gotIt');
-      return !github && app.q.continue; // if set in argv, don't ask
+      return gotGit;
     },
-    'validate': function (input) {
-      return app.rc.write('github', input);
+
+    // set name
+    name: {
+      get: function () {
+        // if we are reading from rc use rc.data
+        var name = (app.useRC) ? app.rc.data.name : undefined;
+
+        return name;
+      },
+      set: function (input) {
+        // set name in .gitconfig
+        app.exec('git config --global user.name "' + input + '"');
+        return app.rc.write('name', input);
+      }
     }
   };
 
-  // set name
-  app.q.name = {
-    'type': 'input',
-    'name': 'name',
-    'message': 'What is your name? (this name will be on your git commits)',
-    'default': function () { return app.git.name; },
-    'when': function (answers) { app.log('answers:', answers);
-      // if we are reading from rc use rc.data
-      var name = (answers.rc) ? app.rc.data.name : undefined;
-
-      app.prop('git.name');
-      return !name && app.q.continue;
-    },
-    'validate': function (input) {
-      if (!input) return false;
-      app.exec('git config --global user.name "' + input + '"');
-      return app.rc.write('name', input);
-    }
-  };
+            /*
 
   // set email
   app.q.email = {
@@ -65,36 +54,44 @@ module.exports = function install(app) {
       var email = (answers.rc) ? app.rc.data.email : undefined;
 
       app.prop('git.email');
-      return !email && app.q.continue;
+      return !email && app.continue;
     },
     'validate': function (input) {
-      if (!input) return false;
+      if (!input) return false; // this is required
+
+      // set email in .gitconfig
       app.exec('git config --global user.email "' + input + '"');
       return app.rc.write('email', input);
     }
   };
 
+  var sshKeyLoc = path.join(app.user.home, '.ssh/id_rsa.pb');
+
   // set email
   app.q.sshKey = {
-    'type': 'confirm',
+    'type': 'input',
     'name': 'sshKey',
-    'message': 'Update your ssh key in github (we\'ll copy this to your clipboard)',
-    'default': function () { return app.git.email; },
+    'message': 'Do you want to update your ssh key in github?',
+    'default': 'no',
     'when': function (answers) { app.log('answers:', answers);
-      var sshKey = path.join(app.user.home, '.ssh/id_rsa.pub');
-      fs.readFileAsync(sshKey)
+      // if sshKeyLoc does not exist, run ssh-keygen
+      return fs.readFileAsync(sshKeyLoc, 'utf8')
         .then(function () {
-          app.exec('cat ' + sshKey + ' | pbcopy');
-          app.exec('open https://github.com/settings/ssh');
+          return true;
         })
         .catch(function (e) {
-          app.exec('ssh-keygen -t rsa -C "' + app.rc.data.email + '"');
-          app.exec('cat ' + sshKey + ' | pbcopy');
-          app.exec('open https://github.com/settings/ssh');
+          app.spawn('ssh-keygen -t rsa -C "' + app.rc.data.email + '"');
+          app.continue = false;
+          return app.continue;
         });
-      return app.q.continue;
+    },
+    'validate': function (input) {
+      if (isYes) {
+        app.exec('cat ' + sshKeyLoc + ' | pbcopy');
+        app.exec('open https://github.com/settings/ssh');
+      }
+      return true;
     }
-  };
 
   // git setup
   app.q.gitSetup = {
@@ -103,7 +100,7 @@ module.exports = function install(app) {
     'message': 'Now we\'ll setup your git completetion, git prompt, and settings',
     'default': 'ok',
     'when': function (answers) { app.log('answers:', answers);
-      return app.q.continue;
+      return app.continue;
     },
     'validate': function (input) {
       if (input === 'n' || input === 'no') return false;
@@ -126,5 +123,5 @@ module.exports = function install(app) {
     'gotIt': app.spawn('git --version').match(/^git version/),
     'name': app.spawn('git config user.name').replace('\n',''),
     'email': app.spawn('git config user.email').replace('\n','')
-  };
+            */
 };

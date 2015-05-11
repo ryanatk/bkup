@@ -10,9 +10,6 @@ module.exports = function (app) {
     app[key] = logjs[key];
   }
 
-  // holds prompt questions
-  app.q = { continue: true };
-
   // util functions
   app.spawn = require('./setup/spawn.js'); // run sync cmd with output returned
   app.exec = require('./setup/exec.js')(app); // run async cmd with [callback]
@@ -24,6 +21,8 @@ module.exports = function (app) {
   app.root = __dirname;
   app.user = { home: path.homedir(), };
   app.debug = app.argv.debug;
+  app.q = {};
+  app.continue = true;
 
   // config properties
   app.rc = require('./setup/rc.js')(app);
@@ -35,6 +34,7 @@ module.exports = function (app) {
   app.git = require('./git.js')(app);
   app.bkup = require('./bkup.js')(app);
   app.dotfiles = require('./dotfiles.js')(app);
+  app.prompts = require('./prompts.js')(app);
 
   return app;
 };
