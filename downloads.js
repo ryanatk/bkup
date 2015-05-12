@@ -45,8 +45,7 @@ module.exports = function (app) {
     .each(function (file) {
       // require js files and run
       if (file.ext === 'js')
-        require(file.loc)(file);
-        // TODO: error handling
+        app.exec('open -a Terminal "`' + file.loc + '`"');
 
       // read json files and dowload from url
       if (file.ext === 'json') {
