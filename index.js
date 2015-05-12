@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-var Promise = require("bluebird");
 var inquirer = require('inquirer');
 
 /****  setup  ****/
@@ -13,10 +12,10 @@ var prompts = [
 , q.env
 , q.github
 , q.name
-/*
 , q.email
 , q.sshKey
 , q.gitSetup
+/*
 , q.bkupLoc
 , q.bkupCloneURL
   */
