@@ -66,6 +66,8 @@ module.exports = function (app) {
     },
 
     'cmd': function cmd() {
+      if (!app.debug) return;
+
       return Log('$').print(arguments);
     },
 

@@ -6,10 +6,10 @@ module.exports = function (app) {
   return function (cmd, callback) {
     app.cmd(cmd);
 
-    exec(cmd, function (error) {
+    exec(cmd, function (error, stdout) {
       app.error(error);
       if (callback)
-        callback();
+        callback(stdout);
     });
   };
 };

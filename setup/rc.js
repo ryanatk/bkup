@@ -7,6 +7,14 @@ module.exports = function (app) {
   var rc = app.file(loc);
 
   rc.data = {};
+
+  rc.useBkupRC = function () {
+    app.useRC = true;
+    app.rc.read(function (data) {
+      return JSON.parse(data);
+    });
+  };
+
   rc.set = function (key, val) {
     app.rc.data[key] = val;
     rc.write(JSON.stringify(app.rc.data));

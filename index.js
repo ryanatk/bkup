@@ -10,6 +10,7 @@ var prompts = [
   q.rc
 , q.os
 , q.env
+, q.gotGit
 , q.github
 , q.name
 , q.email

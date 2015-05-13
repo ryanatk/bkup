@@ -98,13 +98,11 @@ module.exports = function (app) {
 
     clone: function curl(url, loc) {
       loc = loc || this.loc;
-      app.spawn('git clone ' + url + ' ' + loc);
+      app.exec('git clone ' + url + ' ' + loc);
       return this;
     },
 
     curl: function curl(url, loc) {
-      if (this.exists) return this;
-
       loc = loc || this.loc;
       // download from url and write to file
       request({'uri': url}, function (err, res, body) {
@@ -137,8 +135,9 @@ module.exports = function (app) {
       return this;
     },
 
-    read: function () {
-      this.data = fs.readFileSync(this.loc, 'utf8');
+    read: function (callback) {
+      var data = fs.readFileSync(this.loc, 'utf8');
+      this.data = callback ? callback(data) : data;
       return this;
     },
 

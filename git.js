@@ -2,21 +2,18 @@
 // if not, open install page in browser
 // TODO: prompt to update to current version
 
-var fs = require('fs-extra');
+var Promise = require("bluebird");
+var fs = Promise.promisifyAll(require('fs'));
 var path = require('path-extra');
+var exec = require('child_process').exec;
+var execSync = require('child_process').execSync;
+var execFile = require('child_process').execFile;
 
 module.exports = function (app) {
   return {
-    github: function () {
-      var github;
+    gotGit: function () {
       var gotGit = app.spawn('git --version').match(/^git version/);
-
-      // if we don't have git yet, don't bother continuing
-      if (gotGit) {
-        // use argv first, or if we are reading from rc use rc.data
-        github = (app.useRC) ? app.rc.data.github : undefined;
-      } else {
-        app.msg('Please download and install git before continuing');
+      if (!gotGit) {
         app.exec('open http://git-scm.com/downloads');
         app.continue = false;
       }
@@ -24,22 +21,22 @@ module.exports = function (app) {
       return gotGit;
     },
 
-    // set name
+    github: function () {
+      // use argv first, or if we are reading from rc use rc.data
+      return (app.useRC) ? app.rc.data.github : undefined;
+    },
+
     name: {
       get: function () {
         // if we are reading from rc use rc.data
-        var name = (app.useRC) ? app.rc.data.name : undefined;
-
-        return name;
+        return (app.useRC) ? app.rc.data.name : undefined;
       },
       set: function (input) {
         // set name in .gitconfig
-        app.exec('git config --global user.name "' + input + '"');
-        return app.rc.write('name', input);
+        return app.exec('git config --global user.name "' + input + '"');
       }
     },
 
-    // set email
     email: {
       get: function () {
         // if we are reading from rc use rc.data
@@ -49,24 +46,14 @@ module.exports = function (app) {
       },
       set: function (input) {
         // set email in .gitconfig
-        app.exec('git config --global user.email "' + input + '"');
-        return app.rc.write('email', input);
+        return app.exec('git config --global user.email "' + input + '"');
       }
     },
 
     // create & copy sshKey
     sshKey: function () {
-      var sshKeyLoc = path.join(app.user.home, '.ssh/id_rsa.pb');
-
-      // if sshKeyLoc does not exist, run ssh-keygen
-      fs.readFileAsync(sshKeyLoc, 'utf8')
-        .then(function () {
-          app.exec('cat ' + sshKeyLoc + ' | pbcopy');
-          app.exec('open https://github.com/settings/ssh');
-        })
-        .catch(function (e) {
-          app.exec('open -a Terminal "' + path.join(app.root, 'scripts', 'ssh-keygen.js') + '"');
-        });
+      app.exec('open -a Terminal "' + path.join(app.root, 'scripts', 'ssh-keygen.js') + '"');
+      app.exec('open https://github.com/settings/ssh');
     },
 
     setup: function () {

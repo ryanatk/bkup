@@ -1,7 +1,8 @@
 // holds all the prompts
 
 function isYes(input) {
-  return (input.toLowerCase() === 'yes' || input.toLowerCase() === 'y');
+  var affirmative = ['yes', 'y', 'yah', 'ok', 'okie', 'yeah'];
+  return (affirmative.indexOf(input.toLowerCase()) !== -1);
 }
 
 module.exports = function (app) {
@@ -16,9 +17,8 @@ module.exports = function (app) {
         return app.rc.exists && app.continue;
       },
       'validate': function (input) {
-        app.useRC = (input.toLowerCase() === 'yes' || input.toLowerCase() === 'y');
-        if (app.useRC)
-          app.rc.read();
+        if (isYes(input))
+          app.rc.useBkupRC();
 
         return true;
       }
@@ -50,6 +50,15 @@ module.exports = function (app) {
       }
     },
 
+    gotGit: {
+      'type': 'confirmation',
+      'name': 'gotGit',
+      'message': 'Please download and install git before continuing',
+      'when': function (answers) { app.log('answers:', answers);
+        return !app.git.gotGit() && app.continue; // if set in argv, don't ask
+      }
+    },
+
     // github username
     github: {
       'type': 'input',
@@ -69,7 +78,7 @@ module.exports = function (app) {
       'type': 'input',
       'name': 'name',
       'message': 'What is your name? (this name will be on your git commits)',
-      'default': function () { return app.git.name(); },
+      'default': function () { return app.git.name.get(); },
       'when': function (answers) { app.log('answers:', answers);
         return !app.git.name.get() && app.continue;
       },
@@ -88,7 +97,7 @@ module.exports = function (app) {
       'type': 'input',
       'name': 'email',
       'message': 'What is your email address? (this will be on your git commits)',
-      'default': function () { return app.git.email(); },
+      'default': function () { return app.git.email.get(); },
       'when': function (answers) { app.log('answers:', answers);
         return !app.git.email.get() && app.continue;
       },
@@ -112,8 +121,9 @@ module.exports = function (app) {
         return app.continue;
       },
       'validate': function (input) {
-        if (isYes)
+        if (isYes(input))
           app.git.sshKey();
+
         return true;
       }
     },
@@ -123,19 +133,19 @@ module.exports = function (app) {
       'type': 'input',
       'name': 'gitSetup',
       'message': 'Now we\'ll setup your git completetion, git prompt, and settings',
-      'default': 'ok',
+      'default': 'yes',
       'when': function (answers) { app.log('answers:', answers);
         return app.continue;
       },
       'validate': function (input) {
-        if (input === 'n' || input === 'no')
-          return true;
-
-        app.git.setup();
+        if (isYes(input))
+          //app.git.setup();
 
         return true;
       }
-    }
+    },
+
+
 
   };
 };
