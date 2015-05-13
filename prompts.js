@@ -128,7 +128,6 @@ module.exports = function (app) {
       }
     },
 
-    // git setup
     gitSetup: {
       'type': 'input',
       'name': 'gitSetup',
@@ -145,7 +144,36 @@ module.exports = function (app) {
       }
     },
 
+    bkupLoc: {
+      'type': 'input',
+      'name': 'bkupLoc',
+      'message': 'Where would you like to store your bkup files?',
+      'default': function () { return app.bkup.loc.default(); },
+      'when': function (answers) { app.log('answers:', answers);
+        return !app.bkup.loc.get() && app.continue;
+      },
+      'validate': function (input) {
+        app.bkup.loc.set(input)
+        return app.rc.set('bkupLoc', input);
+      }
+    },
 
+    bkupCloneURL: {
+      'type': 'input',
+      'name': 'bkupCloneURL',
+      'message': 'Looks like we need to download your bkup files. What github repo can we find them?',
+      'default': function () { return app.bkup.cloneURL.default(); },
+      'when': function (answers) { app.log('answers:', answers);
+        return !app.user.bkup.exists && app.continue;
+      },
+      'validate': function (input) {
+        // if we're cloning, we need to stop running more questions
+        app.continue = false;
+
+        app.bkup.cloneURL.set(input);
+        return app.rc.set('bkupCloneURL', input);
+      }
+    }
 
   };
 };

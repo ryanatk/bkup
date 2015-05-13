@@ -1,47 +1,39 @@
 // setup your ~/.bkup from github
 
+var path = require('path-extra');
+
 module.exports = function install(app) {
-  var bkup;
-
-  app.q.bkupLoc = {
-    'type': 'input',
-    'name': 'bkupCloneURL',
-    'message': 'Where would you like to store your bkup files?',
-    'default': function () { return bkup.loc; },
-    'when': function (answers) { app.log('answers:', answers);
-      // if we are reading from rc use rc.data
-      var loc = (answers.rc) ? app.rc.data.bkupLoc : app.user.bkup;
-      bkup = app.file(loc);
-
-      return app.continue;
-    },
-    'validate': function (input) {
-      bkup.loc = input;
-      return app.rc.write('bkupLoc', input);
-    }
-  };
-
-  app.q.bkupCloneURL = {
-    'type': 'input',
-    'name': 'bkupCloneURL',
-    'message': 'Looks like we need to download your bkup files. What github repo can we find them?',
-    'default': function () { return app.rc.data.bkupCloneURL || app.bkup.cloneURL(); },
-    'when': function (answers) { app.log('answers:', answers);
-      // if we are reading from rc use rc.data
-      var cloneURL = (answers.rc) ? app.rc.data.bkupClone : undefined;
-
-      return !bkup.exists && !cloneURL && app.continue;
-    },
-    'validate': function (input) {
-      // if we're cloning, we need to stop running more questions
-      app.continue = false;
-
-      bkup.clone(input);
-      return app.rc.write('bkupCloneURL', input);
-    }
-  };
-
   return {
-    'cloneURL': function () { return 'git@github.com:' + app.rc.data.github + '/backup.git'; }
+    loc: {
+      get: function () {
+        // if we are reading from rc use rc.data
+        var loc = (app.useRC) ? app.rc.data.bkupLoc : undefined;
+        if (loc)
+          app.user.bkup = app.file(loc);
+
+        return loc;
+      },
+      set: function (input) {
+        app.user.bkup = app.file(input);
+        return app.user.bkup.exists;
+      },
+      default: function () {
+        return app.bkup.loc.get() || path.join(app.user.home, '.backup');
+      }
+    },
+
+    cloneURL: {
+      get: function () {
+        return (app.useRC) ? app.rc.data.bkupCloneURL : undefined;
+      },
+
+      set: function (input) {
+        app.file(app.user.bkup).clone(input);
+        return true;
+      },
+      default: function () {
+        return app.bkup.cloneURL.get() || 'git@github.com:' + app.rc.data.github + '/bkup.git';
+      }
+    }
   };
 };

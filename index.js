@@ -16,10 +16,8 @@ var prompts = [
 , q.email
 , q.sshKey
 , q.gitSetup
-/*
 , q.bkupLoc
 , q.bkupCloneURL
-  */
 ];
 
 inquirer.prompt(prompts, function (answers) {
