@@ -33,6 +33,7 @@ module.exports = function (app) {
   app.git = require('./git.js')(app);
   app.bkup = require('./bkup.js')(app);
   app.dotfiles = require('./dotfiles.js')(app);
+  app.downloads = require('./downloads.js')(app);
   app.prompts = require('./prompts.js')(app);
 
   return app;

@@ -33,10 +33,10 @@ module.exports = function (app) {
       var self = this;
       fs.unlinkAsync(loc)
         .then(function () {
-          app.msg('Removed link:', loc);
+          app.log('Removed link:', loc);
         })
         .catch(function (e) {
-          app.msg('Could not remove link:', loc, e);
+          app.log('Could not remove link:', loc, e);
           return self;
         });
 
@@ -50,7 +50,7 @@ module.exports = function (app) {
 
       fs.symlinkAsync(src, tgt)
         .then(function () {
-          app.msg('Added symlink:', src, '->', tgt);
+          app.log('Added symlink:', src, '->', tgt);
         })
         .catch(function (e) {
           app.warn('Could not create symlink:', tgt, e);
@@ -95,7 +95,7 @@ module.exports = function (app) {
         })
         .then(function () {
           // write the file
-          app.msg('Created file:', self.target);
+          app.log('Created file:', self.target);
           return fs.writeFileAsync(self.target, lines.join('\n'));
         })
         .catch(function (e) {
@@ -151,7 +151,7 @@ module.exports = function (app) {
     write: function (data) {
       fs.writeFileAsync(this.loc, data, 'utf8')
         .then(function (file) {
-          app.msg('Wrote file:', file.loc);
+          app.log('Wrote file:', file.loc);
         })
         .catch(function (err) {
           app.error(err);

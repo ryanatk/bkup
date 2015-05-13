@@ -19,6 +19,7 @@ var prompts = [
 , q.bkupLoc
 , q.bkupCloneURL
 , q.dotfiles
+, q.downloads
 ];
 
 inquirer.prompt(prompts, function (answers) {

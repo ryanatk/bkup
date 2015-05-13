@@ -189,6 +189,22 @@ module.exports = function (app) {
 
         return true;
       }
+    },
+
+    downloads: {
+      'type': 'input',
+      'name': 'downloads',
+      'message': 'Now we\'ll download ALL THE THINGS',
+      'default': 'ok',
+      'when': function (answers) { app.log('answers:', answers);
+        return app.continue;
+      },
+      'validate': function (input) {
+        if (isYes(input))
+          app.downloads();
+
+        return true;
+      }
     }
 
   };
