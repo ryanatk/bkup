@@ -18,6 +18,7 @@ var prompts = [
 , q.gitSetup
 , q.bkupLoc
 , q.bkupCloneURL
+, q.dotfiles
 ];
 
 inquirer.prompt(prompts, function (answers) {

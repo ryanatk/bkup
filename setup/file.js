@@ -29,16 +29,15 @@ module.exports = function (app) {
   File.prototype = {
     // remove existing symlink
     unlink: function unlink(loc) {
-      if (!this.exists) return this;
-
-      loc = loc || this.loc;
+      loc = loc || this.target;
+      var self = this;
       fs.unlinkAsync(loc)
         .then(function () {
           app.msg('Removed link:', loc);
         })
         .catch(function (e) {
-            app.log('&&&', typeof loc, loc)
           app.msg('Could not remove link:', loc, e);
+          return self;
         });
 
       return this;
@@ -46,15 +45,18 @@ module.exports = function (app) {
 
     // create a symlink from dotfile location to target code
     symlink: function symlink(src, tgt) {
-      if (this.exists) return this;
+      src = src || this.loc;
+      tgt = tgt || this.target;
 
-      return fs.symlinkAsync(src, tgt)
+      fs.symlinkAsync(src, tgt)
         .then(function () {
           app.msg('Added symlink:', src, '->', tgt);
         })
         .catch(function (e) {
           app.warn('Could not create symlink:', tgt, e);
         });
+
+      return this;
     },
 
     // backup the file, adding timestamp
@@ -62,6 +64,7 @@ module.exports = function (app) {
       loc = loc || this.loc;
       var oldPath = loc;
       var newPath = oldPath + '.bkup.' + timestamp;
+      var self = this;
 
       return fs.copyAsync(oldPath, newPath)
         .then(function () {
@@ -69,18 +72,22 @@ module.exports = function (app) {
         })
         .catch(function (e) {
           app.warn('Could not create backup:', newPath, e);
+          return self;
         });
+
+      return this;
     },
 
     sourceFiles: function sourceFiles(dir) {
-      var srcDir = dir.source.loc;
+      dir = dir || this.loc;
+      var self = this;
 
       // setup buffer to hold lines
       var lines = ['#!/bin/bash',''];
 
-      return fs.readdirAsync(srcDir)
+      return fs.readdirAsync(dir)
         .each(function (name) {
-          var line = 'source ' + srcDir + '/' + name;
+          var line = 'source ' + dir + '/' + name;
 
           // comment line, based on user input
 
@@ -88,11 +95,11 @@ module.exports = function (app) {
         })
         .then(function () {
           // write the file
-          app.msg('Created file:', dir.target.loc);
-          return fs.writeFileAsync(dir.target.loc, lines.join('\n'));
+          app.msg('Created file:', self.target);
+          return fs.writeFileAsync(self.target, lines.join('\n'));
         })
         .catch(function (e) {
-          app.warn('failed to write:', dir.target.loc, e);
+          app.warn('failed to write:', self.target, e);
         });
     },
 

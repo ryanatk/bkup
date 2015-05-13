@@ -54,6 +54,7 @@ module.exports = function (app) {
     sshKey: function () {
       app.exec('open -a Terminal "' + path.join(app.root, 'scripts', 'ssh-keygen.js') + '"');
       app.exec('open https://github.com/settings/ssh');
+      // TODO: store that we've already done this in app.rc.data
     },
 
     setup: function () {
@@ -65,6 +66,8 @@ module.exports = function (app) {
 
       app.file(path.join(app.user.home, '.git-prompt.sh'))
         .curl('https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh');
+
+      // TODO: if these files exist already, don't do it again
     }
 
   };

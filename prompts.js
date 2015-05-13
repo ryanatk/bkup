@@ -173,6 +173,22 @@ module.exports = function (app) {
         app.bkup.cloneURL.set(input);
         return app.rc.set('bkupCloneURL', input);
       }
+    },
+
+    dotfiles: {
+      'type': 'input',
+      'name': 'dotfiles',
+      'message': 'Now we\'ll setup your dotfiles',
+      'default': 'ok',
+      'when': function (answers) { app.log('answers:', answers);
+        return app.continue;
+      },
+      'validate': function (input) {
+        if (isYes(input))
+          app.dotfiles();
+
+        return true;
+      }
     }
 
   };
