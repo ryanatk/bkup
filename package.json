@@ -1,6 +1,6 @@
 {
   "name": "bkup",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "easy setup of a fresh os install, from backup",
   "main": "index.js",
   "scripts": {
