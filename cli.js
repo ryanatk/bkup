@@ -1,7 +1,11 @@
+#!/usr/bin/env node
+
+var inquirer = require('inquirer');
+
 /****  setup  ****/
 var app = require('./setup.js')({});
-var q = require('./prompts.js')(app);
 
+var q = app.prompts;
 var prompts = [
   q.rc
 , q.os

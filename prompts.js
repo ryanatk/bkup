@@ -1,4 +1,13 @@
-// holds all the prompts
+// config properties
+var rc = require('./setup/rc.js')(app);
+var os = require('./setup/os.js')(app);
+var env = require('./setup/env.js')(app);
+
+// prompts and scripts
+var git = require('./git.js')(app);
+var bkup = require('./bkup.js')(app);
+var dotfiles = require('./dotfiles.js')(app);
+var downloads = require('./downloads.js')(app);
 
 function isYes(input) {
   var affirmative = ['yes', 'y', 'yah', 'ok', 'okie', 'yeah'];
@@ -13,12 +22,12 @@ module.exports = function (app) {
       'message': 'Would you like to use your previous bkup configuration?',
       'default': 'yes',
       'when': function (answers) { app.log('answers:', answers);
-        app.rc.backup();
-        return app.rc.exists && app.continue;
+        rc.backup();
+        return rc.exists && app.continue;
       },
       'validate': function (input) {
         if (isYes(input))
-          app.rc.useBkupRC();
+          rc.useBkupRC();
 
         return true;
       }
@@ -28,12 +37,12 @@ module.exports = function (app) {
       'type': 'input',
       'name': 'os',
       'message': 'What OS are you using?',
-      'default': function () { return app.os.guess() || ''; },
+      'default': function () { return os.guess() || ''; },
       'when': function (answers) { app.log('answers:', answers);
-        return !app.os.get() && app.continue;
+        return !os.get() && app.continue;
       },
       'validate': function (input) {
-        return app.rc.set('os', input);
+        return rc.set('os', input);
       }
     },
 
@@ -41,12 +50,12 @@ module.exports = function (app) {
       'type': 'input',
       'name': 'env',
       'message': 'What environment are we setting up? [work, home, server]',
-      'default': function () { return app.rc.data.env || ''; },
+      'default': function () { return rc.data.env || ''; },
       'when': function (answers) { app.log('answers:', answers);
-        return !app.env.get(answers.rc) && app.continue;
+        return !env.get(answers.rc) && app.continue;
       },
       'validate': function (input) {
-        return app.rc.set('env', input);
+        return rc.set('env', input);
       }
     },
 
@@ -55,7 +64,7 @@ module.exports = function (app) {
       'name': 'gotGit',
       'message': 'Please download and install git before continuing',
       'when': function (answers) { app.log('answers:', answers);
-        return !app.git.gotGit() && app.continue; // if set in argv, don't ask
+        return !git.gotGit() && app.continue; // if set in argv, don't ask
       }
     },
 
@@ -64,12 +73,12 @@ module.exports = function (app) {
       'type': 'input',
       'name': 'github',
       'message': 'What is your github username?',
-      'default': function () { return app.rc.data.github; },
+      'default': function () { return rc.data.github; },
       'when': function (answers) { app.log('answers:', answers);
-        return !app.git.github(answers.rc) && app.continue; // if set in argv, don't ask
+        return !git.github(answers.rc) && app.continue; // if set in argv, don't ask
       },
       'validate': function (input) {
-        return app.rc.set('github', input);
+        return rc.set('github', input);
       }
     },
 
@@ -78,17 +87,17 @@ module.exports = function (app) {
       'type': 'input',
       'name': 'name',
       'message': 'What is your name? (this name will be on your git commits)',
-      'default': function () { return app.git.name.get(); },
+      'default': function () { return git.name.get(); },
       'when': function (answers) { app.log('answers:', answers);
-        return !app.git.name.get() && app.continue;
+        return !git.name.get() && app.continue;
       },
       'validate': function (input) {
         if (!input)
           return false; // this is required
         else
-          app.git.name.set(input);
+          git.name.set(input);
 
-        return app.rc.set('name', input);
+        return rc.set('name', input);
       }
     },
 
@@ -97,17 +106,17 @@ module.exports = function (app) {
       'type': 'input',
       'name': 'email',
       'message': 'What is your email address? (this will be on your git commits)',
-      'default': function () { return app.git.email.get(); },
+      'default': function () { return git.email.get(); },
       'when': function (answers) { app.log('answers:', answers);
-        return !app.git.email.get() && app.continue;
+        return !git.email.get() && app.continue;
       },
       'validate': function (input) {
         if (!input)
           return false; // this is required
         else
-          app.git.email.set(input);
+          git.email.set(input);
 
-        return app.rc.set('email', input);
+        return rc.set('email', input);
       }
     },
 
@@ -122,7 +131,7 @@ module.exports = function (app) {
       },
       'validate': function (input) {
         if (isYes(input))
-          app.git.sshKey();
+          git.sshKey();
 
         return true;
       }
@@ -138,7 +147,7 @@ module.exports = function (app) {
       },
       'validate': function (input) {
         if (isYes(input))
-          //app.git.setup();
+          //git.setup();
 
         return true;
       }
@@ -148,13 +157,13 @@ module.exports = function (app) {
       'type': 'input',
       'name': 'bkupLoc',
       'message': 'Where would you like to store your bkup files?',
-      'default': function () { return app.bkup.loc.default(); },
+      'default': function () { return bkup.loc.default(); },
       'when': function (answers) { app.log('answers:', answers);
-        return !app.bkup.loc.get() && app.continue;
+        return !bkup.loc.get() && app.continue;
       },
       'validate': function (input) {
-        app.bkup.loc.set(input)
-        return app.rc.set('bkupLoc', input);
+        bkup.loc.set(input)
+        return rc.set('bkupLoc', input);
       }
     },
 
@@ -162,7 +171,7 @@ module.exports = function (app) {
       'type': 'input',
       'name': 'bkupCloneURL',
       'message': 'Looks like we need to download your bkup files. What github repo can we find them?',
-      'default': function () { return app.bkup.cloneURL.default(); },
+      'default': function () { return bkup.cloneURL.default(); },
       'when': function (answers) { app.log('answers:', answers);
         return !app.user.bkup.exists && app.continue;
       },
@@ -170,8 +179,8 @@ module.exports = function (app) {
         // if we're cloning, we need to stop running more questions
         app.continue = false;
 
-        app.bkup.cloneURL.set(input);
-        return app.rc.set('bkupCloneURL', input);
+        bkup.cloneURL.set(input);
+        return rc.set('bkupCloneURL', input);
       }
     },
 
@@ -185,7 +194,7 @@ module.exports = function (app) {
       },
       'validate': function (input) {
         if (isYes(input))
-          app.dotfiles();
+          dotfiles();
 
         return true;
       }
@@ -201,7 +210,7 @@ module.exports = function (app) {
       },
       'validate': function (input) {
         if (isYes(input))
-          app.downloads();
+          downloads();
 
         return true;
       }

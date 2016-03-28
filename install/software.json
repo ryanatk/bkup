@@ -1,0 +1,38 @@
+[ {
+  "name": "adium",
+  "dmg": "http://hivelocity.dl.sourceforge.net/project/adium/Adium_1.5.10.dmg"
+}, {
+  "name": "canary",
+  "dmg": "https://storage.googleapis.com/chrome-canary/GoogleChromeCanary.dmg"
+}, {
+  "name": "chrome",
+  "primary": true,
+  "dmg" : "https://dl.google.com/chrome/mac/stable/GGRO/googlechrome.dmg"
+}, {
+  "name": "chromecast",
+  "dmg": "http://cache.pack.google.com/edgedl/chromecast/setup/mac/chromecast-setup.1.5.0.1773.dmg"
+}, {
+  "name": "dropbox",
+  "primary": true,
+  "link": "https://www.dropbox.com/downloading?os=mac"
+}, {
+  "name": "firefox",
+  "dmg": "https://download-installer.cdn.mozilla.net/pub/firefox/releases/37.0.2/mac/en-US/Firefox%2037.0.2.dmg"
+}, {
+  "name": "hermes",
+  "dmg": "http://hivelocity.dl.sourceforge.net/project/hermesjms/hermesjms/1.14/HermesJMS.dmg"
+}, {
+  "name": "macvim",
+  "link": "https://github.com/macvim-dev/macvim/releases/latest"
+}, {
+  "name": "mou",
+  "primary": true,
+  "zip": "http://25.io/mou/download/Mou.zip"
+}, {
+  "name": "spotify",
+  "zip": "http://download.spotify.com/SpotifyInstaller.zip"
+}, {
+  "name": "total terminal",
+  "primary": true,
+  "dmg": "http://downloads.binaryage.com/TotalTerminal-1.5.4.dmg"
+} ]

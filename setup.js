@@ -24,17 +24,5 @@ module.exports = function (app) {
   app.q = {};
   app.continue = true;
 
-  // config properties
-  app.rc = require('./setup/rc.js')(app);
-  app.os = require('./setup/os.js')(app);
-  app.env = require('./setup/env.js')(app);
-
-  // prompts and scripts
-  app.git = require('./git.js')(app);
-  app.bkup = require('./bkup.js')(app);
-  app.dotfiles = require('./dotfiles.js')(app);
-  app.downloads = require('./downloads.js')(app);
-  app.prompts = require('./prompts.js')(app);
-
   return app;
 };

@@ -22,4 +22,3 @@ If you have **sudo** permissions, you can install globally (where npm installs):
 Or if you already have a location you like to install your **node_modules** (or you're not **sudo**), then **cd** over to it and:
 
 	npm install bkup
-
